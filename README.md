@@ -21,7 +21,8 @@ If you have the agent installed, you can install any plugin in this repository b
 	$ git clone git@github.com:amonapp/amon-plugins.git /etc/amonagent/plugins
 
 
-For example if you want to install the apache plugin: [https://github.com/amonapp/amon-plugins/tree/master/apache](https://github.com/amonapp/amon-plugins/tree/master/apache)
+For example if you want to install the apache plugin: 
+
 	
 	$ mkdir /etc/amonagent/plugins-enabled
 	$ cp /etc/amonagent/plugins/apache/apache.example.conf /etc/amonagent/plugins-enabled/apache.conf
