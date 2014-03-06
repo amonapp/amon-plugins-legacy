@@ -16,12 +16,14 @@ First you need to make sure that the amonagent is already installed and running.
 
 
 If you have the agent installed, you can install any plugin in this repository by running the following commmand:
-
+	
+	$ mkdir /etc/amonagent
 	$ git clone git@github.com:amonapp/amon-plugins.git /etc/amonagent/plugins
 
 
 For example if you want to install the apache plugin: [https://github.com/amonapp/amon-plugins/tree/master/apache](https://github.com/amonapp/amon-plugins/tree/master/apache)
-
+	
+	$ mkdir /etc/amonagent/plugins-enabled
 	$ cp /etc/amonagent/plugins/apache/apache.example.conf /etc/amonagent/plugins-enabled/apache.conf
 
 	$ /etc/init.d/amon-agent plugins
