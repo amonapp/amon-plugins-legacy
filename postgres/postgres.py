@@ -1,21 +1,26 @@
 from amonagent.plugin import AmonPlugin
 
+
+
 class PostgreSqlPlugin(AmonPlugin):
+	"""Collects per-database, and optionally per-relation metrics
+	"""
+
 
 	GAUGES = {
 		'numbackends': 'connections'
 	}
 
 	COUNTERS = {
-		"xact_commit": "commits",
-		"xact_rollback": "rollbacks",
-		"blks_read": 'disk_read',
-		"blks_hit": "buffer_hit",
-		"tup_returned": 'rows_returned',
-		"tup_fetched": 'rows_fetched',
-		"tup_inserted": 'rows_inserted',
-		"tup_updated": 'rows_updated',
-		"tup_deleted": 'rows_deleted'
+		"xact_commit": "xact.commits",
+		"xact_rollback": "xact.rollbacks",
+		"blks_read": 'performance.disk_read',
+		"blks_hit": "performance.buffer_hit",
+		"tup_returned": 'rows.returned',
+		"tup_fetched": 'rows.fetched',
+		"tup_inserted": 'rows.inserted',
+		"tup_updated": 'row.updated',
+		"tup_deleted": 'rows.deleted'
 
 	}
 
@@ -74,9 +79,9 @@ SELECT datname,
 	 	for row in result:
 	 		assert len(row) == len(field_names)
 
-	 		values = dict(zip(field_names, list(row)))
-	 		
 
+	 		values = dict(zip(field_names, list(row)))
+			
 	 		# Save the values only for the database defined in the config file 
 	 		datname = values.get('datname')
 	 
@@ -84,10 +89,13 @@ SELECT datname,
 	 			for k,v in values.items():
 	 				
 	 				if k in self.GAUGES:
-	 					self.gauge(k, v)
+	 					key = self.GAUGES[k] 
+	 					self.gauge(key, v)
 	 
 	 				if k in self.COUNTERS:
-	 					self.counter(k, v)
+	 					key = self.COUNTERS[k] 
+
+	 					self.counter(key, v)
 		
 		cursor.close()
 		
