@@ -19,7 +19,7 @@ class PostgreSqlPlugin(AmonPlugin):
 		"tup_returned": 'rows.returned',
 		"tup_fetched": 'rows.fetched',
 		"tup_inserted": 'rows.inserted',
-		"tup_updated": 'row.updated',
+		"tup_updated": 'rows.updated',
 		"tup_deleted": 'rows.deleted'
 
 	}
