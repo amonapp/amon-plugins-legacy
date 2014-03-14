@@ -1,11 +1,7 @@
 from amonagent.plugin import AmonPlugin
 
 
-
-class PostgreSqlPlugin(AmonPlugin):
-	"""Collects per-database, and optionally per-relation metrics
-	"""
-
+class PostgresPlugin(AmonPlugin):
 
 	GAUGES = {
 		'numbackends': 'connections'
