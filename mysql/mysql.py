@@ -70,13 +70,15 @@ class MySQLPLugin(AmonPlugin):
 		cursor.execute("SHOW /*!50002 GLOBAL */ STATUS;")
 		results = dict(cursor.fetchall())
 		
-		for key, value in results.items():
+		for k, v in results.items():
 
-			if key in self.COUNTERS:
-				self.counter(key, value)
+			if k in self.COUNTERS:
+				key = self.COUNTERS[k] 
+				self.counter(key, v)
 
-			if key in self.GAUGES:
-				self.gauge(key, value)
+			if k in self.GAUGES:
+				key = self.GAUGES[k]
+				self.gauge(key, v)
 		
 		cursor.close()
 		del cursor
