@@ -3,12 +3,12 @@
 
 Monitors MongoDB parsing the output from the `db.serverStatus()` command. Sends to Amon the the following metrics:  
 
-- Connections - [http://docs.mongodb.org/manual/reference/command/serverStatus/#connections]
-- Opcounters - [http://docs.mongodb.org/manual/reference/command/serverStatus/#opcounters]
-- Cursors - [http://docs.mongodb.org/manual/reference/command/serverStatus/#cursors]
-- IndexCounters - [http://docs.mongodb.org/manual/reference/command/serverStatus/#indexcounters]
-- Asserts - [http://docs.mongodb.org/manual/reference/command/serverStatus/#asserts]
-- Metrics - [http://docs.mongodb.org/manual/reference/command/serverStatus/#metrics]
+- Connections - http://docs.mongodb.org/manual/reference/command/serverStatus/#connections
+- Opcounters - http://docs.mongodb.org/manual/reference/command/serverStatus/#opcounters
+- Cursors - http://docs.mongodb.org/manual/reference/command/serverStatus/#cursors
+- IndexCounters - http://docs.mongodb.org/manual/reference/command/serverStatus/#indexcounters
+- Asserts - http://docs.mongodb.org/manual/reference/command/serverStatus/#asserts
+- Metrics - http://docs.mongodb.org/manual/reference/command/serverStatus/#metrics
 
 ## Installing
 
@@ -23,7 +23,7 @@ To install the plugin:
 
 ## Configuration
 
-* **server** - Mongo URI connection string [http://docs.mongodb.org/manual/reference/connection-string/].
+* **server** - Mongo URI connection string http://docs.mongodb.org/manual/reference/connection-string/.
 
 
 ## Testing
