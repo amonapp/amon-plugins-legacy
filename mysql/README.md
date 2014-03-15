@@ -17,7 +17,7 @@ To install the plugin:
 ## Configuration
 
 * **host** -  Your MySQL host, defaults to localhost
-* **port** - Your MySQL port, defaults to 5432
+* **port** - Your MySQL port, defaults to 3306
 * **password** - Your MySQL password, defined when creating the amon user
 * **user** - Your MySQL user, defaults to amon
 * **socket** - (Optional), If you connect to your MySQL instance through an Unix socket.
