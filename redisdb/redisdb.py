@@ -3,6 +3,9 @@ import redis
 from amonagent.plugin import AmonPlugin
 
 class RedisPlugin(AmonPlugin):
+
+	VERSION = '1.0'
+
 	GAUGES = {
 		# Append-only metrics
 		'aof_last_rewrite_time_sec':    'aof.last_rewrite_time',
@@ -74,3 +77,8 @@ class RedisPlugin(AmonPlugin):
 		for k in self.GAUGES:
 			if k in info:
 				self.gauge(self.GAUGES[k], info[k])
+
+
+		redis_version =  info.get('redis_version')
+		self.version(plugin=self.VERSION, redispy=redis.__version__,
+			redis=redis_version)

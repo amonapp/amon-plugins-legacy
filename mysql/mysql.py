@@ -1,7 +1,14 @@
+try:
+	import MySQLdb
+except ImportError:
+	raise Exception("Cannot import MySQLdb module.")
+
 from amonagent.plugin import AmonPlugin
 
 
 class MySQLPLugin(AmonPlugin):
+
+	VERSION = '1.0'
 
 	GAUGES = {
 		'Max_used_connections': 'net.max_connections', 
@@ -41,12 +48,6 @@ class MySQLPLugin(AmonPlugin):
 
 
 	def _connect(self):
-		try:
-			import MySQLdb
-		except ImportError:
-			raise Exception("Cannot import MySQLdb module.")
-
-
 		host = self.config.get('host', 'localhost')
 		port = self.config.get('port', 3306)
 		user = self.config.get('user')
@@ -80,5 +81,18 @@ class MySQLPLugin(AmonPlugin):
 				key = self.GAUGES[k]
 				self.gauge(key, v)
 		
+
+		cursor.execute("SELECT VERSION();")
+
+		try:
+			mysql_version = cursor.fetchone()[0]
+		except:
+			mysql_version = None
+		
+		self.version(mysql=mysql_version, 
+			plugin=self.VERSION,
+			mysqldb=MySQLdb.__version__)
+		
+
 		cursor.close()
 		del cursor

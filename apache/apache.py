@@ -20,7 +20,7 @@ class ApachePlugin(AmonPlugin):
 		response = requests.head(status_url)
 		library = response.headers.get('server')
 
-		self.version(library=library, plugin=self.VERSION)
+		self.version(apache=library, plugin=self.VERSION)
 
 
 	def collect(self):

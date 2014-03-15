@@ -1,7 +1,15 @@
+try:
+	import psycopg2
+except ImportError:
+	raise ImportError("psycopg2 library cannot be imported. Please check the installation instruction at https://github.com/amonapp/amon-plugins/tree/master/postgres.")
+
 from amonagent.plugin import AmonPlugin
 
 
 class PostgresPlugin(AmonPlugin):
+
+
+	VERSION = '1.0'
 
 	GAUGES = {
 		'numbackends': 'connections'
@@ -33,10 +41,7 @@ SELECT datname,
 		
 
 	def _get_connection(self):
-		try:
-			import psycopg2 as pg
-		except ImportError:
-			raise ImportError("psycopg2 library cannot be imported. Please check the installation instruction on the Amon Website.")
+		
 			
 		host = self.config.get('host', 'localhost')
 		port = self.config.get('port', 5432)
@@ -47,7 +52,7 @@ SELECT datname,
 		self.database = self.config.get("database")
 
 
-		self.connection = pg.connect(host=host, user=user, password=password, database=self.database)
+		self.connection = psycopg2.connect(host=host, user=user, password=password, database=self.database)
 
 		
 		try:
@@ -93,5 +98,15 @@ SELECT datname,
 
 	 					self.counter(key, v)
 		
-		cursor.close()
+
+
+		cursor.execute("SELECT version();")
+		result = cursor.fetchone()
 		
+
+		if result:
+			self.version(psycopg2=psycopg2.__version__,
+				postgres=result,
+				plugin=self.VERSION)
+
+		cursor.close()

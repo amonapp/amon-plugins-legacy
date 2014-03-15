@@ -1,5 +1,12 @@
 import types
 
+try:
+	import pymongo		
+except ImportError:
+	raise Exception('Python PyMongo Module can not be imported. Please check the installation instruction on https://github.com/amonapp/amon-plugins/tree/master/mongo')
+
+from pymongo import uri_parser
+
 from amonagent.plugin import AmonPlugin
 
 class MongoPlugin(AmonPlugin):
@@ -64,6 +71,13 @@ class MongoPlugin(AmonPlugin):
 	DEFAULT_TIMEOUT = 10
 
 
+	def get_versions(self):
+		mongodb_version = self.conn.server_info()['version']
+
+
+		self.version(mongo=mongodb_version, plugin=self.VERSION, pymongo=pymongo.version)
+
+
 	def collect(self):
 		server =  self.config.get('server')
 
@@ -72,23 +86,7 @@ class MongoPlugin(AmonPlugin):
 			return
 		
 		
-		try:
-			from pymongo import Connection
-		except ImportError:
-			self.log.error('mongo.conf exists but pymongo module can not be imported. Skipping check.')
-			raise Exception('Python PyMongo Module can not be imported. Please check the installation instruction on the Datadog Website')
-
-		try:
-			from pymongo import uri_parser
-			# Configuration a URL, mongodb://user:pass@server/db
-			parsed = uri_parser.parse_uri(server)
-		except ImportError:
-			# uri_parser is pymongo 2.0+
-			matches = mongo_uri_re.match(server)
-			if matches:
-				parsed = matches.groupdict()
-			else:
-				parsed = {}
+		parsed = uri_parser.parse_uri(server)
 
 		username = parsed.get('username')
 		password = parsed.get('password')
@@ -103,8 +101,8 @@ class MongoPlugin(AmonPlugin):
 			self.log.debug("Mongo: cannot extract username and password from config %s" % server)
 			do_auth = False
 
-		conn = Connection(server, network_timeout=self.DEFAULT_TIMEOUT)
-		db = conn[db_name]
+		self.conn = pymongo.Connection(server, network_timeout=self.DEFAULT_TIMEOUT)
+		db = self.conn[db_name]
 		if do_auth:
 			if not db.authenticate(username, password):
 				self.log.error("Mongo: cannot connect with config %s" % server)
@@ -183,3 +181,7 @@ class MongoPlugin(AmonPlugin):
 
 			if m in self.COUNTERS:
 				self.counter(m, value)
+
+
+		self.get_versions()
+		
