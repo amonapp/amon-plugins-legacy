@@ -26,6 +26,15 @@ To install the plugin:
 * **server** - Mongo URI connection string http://docs.mongodb.org/manual/reference/connection-string/.
 
 
+If you have enabled authentication for your Mongo database, you have to create a read only admin user for Amon:
+
+
+    $ mongo
+    $ use admin
+    $ db.auth("admin", "admin-password")
+    $ db.addUser("amon", "your-desired-password", true)
+
+
 ## Testing
 
 To test the installation, run the following:
