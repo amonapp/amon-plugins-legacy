@@ -54,11 +54,12 @@ class RedisPlugin(AmonPlugin):
 
 
 	def collect(self):
-		host = self.config.get('host')
+		host = self.config.get('host', 'localhost')
 		port = self.config.get('port', 6379)
 		password = self.config.get('password')
+		db = self.config.get('db', 0)
 
-		self.conn = redis.StrictRedis(host=host, port=port, db=0, password=password)
+		self.conn = redis.StrictRedis(host=host, port=port, db=db, password=password)
 
 
 		try:
