@@ -9,14 +9,25 @@ class ApachePlugin(AmonPlugin):
 	GAUGES = {
 		'IdleWorkers': 'performance.idle_workers',
 		'BusyWorkers': 'performance.busy_workers',
-		'ReqPerSec': 'net.requests.per.second', 
+		'CPULoad': 'performance.cpu_load',
+		'ReqPerSec': 'requests.per.second', 
 		'Total kBytes': 'net.bytes',
 		'Total Accesses': 'net.hits',
 	}
 
+	def get_versions(self, status_url):
+
+		response = requests.head(status_url)
+		library = response.headers.get('server')
+
+		self.version(library=library, plugin=self.VERSION)
+
 
 	def collect(self):
-		status_url =  self.config.get('status_url')
+		status_url = self.config.get('status_url')
+
+
+		self.get_versions(status_url)
 
 		response = requests.get(status_url)
 		
@@ -26,5 +37,12 @@ class ApachePlugin(AmonPlugin):
 	
 			if key in self.GAUGES.keys():
 				normalized_key = self.GAUGES[key]
-				value = int(value)
+				
+
+				try:
+					value = float(value)
+				except ValueError:
+					continue
+
+			
 				self.gauge(normalized_key, value)
