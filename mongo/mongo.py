@@ -3,7 +3,8 @@ import types
 from amonagent.plugin import AmonPlugin
 
 class MongoPlugin(AmonPlugin):
-
+	
+	VERSION = '1.0'
 
 
 	GAUGES = [
