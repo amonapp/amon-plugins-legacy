@@ -1,8 +1,7 @@
 # Mongo Plugin
 
 
-Monitors MongoDB parsing the output from the `db.serverStatus()` command. Sends to Amon the 
-fo the following metrics:  
+Monitors MongoDB parsing the output from the `db.serverStatus()` command. Sends to Amon the the following metrics:  
 
 - Connections - [http://docs.mongodb.org/manual/reference/command/serverStatus/#connections]
 - Opcounters - [http://docs.mongodb.org/manual/reference/command/serverStatus/#opcounters]
