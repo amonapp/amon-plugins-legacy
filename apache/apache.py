@@ -3,11 +3,8 @@ import requests
 from amonagent.plugin import AmonPlugin
 
 class ApachePlugin(AmonPlugin):
-	"""Tracks basic apache metrics via the status module
-	* number of workers
-	* number of requets per second
-
-	"""
+	
+	VERSION = '1.0'
 
 	GAUGES = {
 		'IdleWorkers': 'performance.idle_workers',
