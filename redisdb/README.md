@@ -1,4 +1,3 @@
-
 Monitors Redis parsing the output from the `INFO` command - http://redis.io/commands/INFO. Sends to Amon the the following metrics:  
 
 
@@ -17,7 +16,6 @@ To install the plugin:
 
 * **host** -  Your Redis host, defaults to localhost
 * **port** - Your Redis port, defaults to 6379
-
 * **user** - Your Redis username
 * **password** - Your Redis password
 * **database** - Optional, defaults to 0.
