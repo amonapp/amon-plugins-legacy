@@ -16,9 +16,8 @@ To install the plugin:
 
 * **host** -  Your Redis host, defaults to localhost
 * **port** - Your Redis port, defaults to 6379
-* **user** - Your Redis username
-* **password** - Your Redis password
-* **database** - Optional, defaults to 0.
+* **password** - Your Redis password (Optional)
+* **database** - (Optional, defaults to 0)
 
 ## Testing
 
