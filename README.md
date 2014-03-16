@@ -10,7 +10,7 @@ Each folder in this repository represents one Amon plugin.
 How to Install a plugin on your server
 ---------------------------------
 
-You will find detailed instructions about how to install a plugin in the <a href="https://github.com/amonapp/amon-plugins">github repository</a> folder for this plugin.
+You will find detailed instructions about how to install a plugin in the corresponding folder for this plugin.
 	
 
 How to create your own Amon plugin
