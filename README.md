@@ -7,6 +7,12 @@ to monitor a wide variety of application metrics.
 Each folder in this repository represents one Amon plugin.
 
 
+Getting Started
+---------------------------------
+
+You will find detailed information about how plugins work in Amon at https://amon.cx/docs/plugins
+
+
 How to Install a plugin on your server
 ---------------------------------
 
