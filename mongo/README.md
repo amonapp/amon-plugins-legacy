@@ -16,7 +16,9 @@ The Mongo plugin requires Amon agent version 0.8+. To check your agent version: 
 
 To install the plugin:
 
-
+    $ apt-get install python-dev # pymongo requirements on Debian/Ubuntu
+    $ yum install python-devel # pymongo requirements on CentOS/Amazon AMI/Fedora
+        
     $ cp /etc/amonagent/plugins/mongo/mongo.conf.example /etc/amonagent/plugins-enabled/mongo.conf
     $ sudo pip install -r /etc/amonagent/plugins/mongo/requirements.txt
 
