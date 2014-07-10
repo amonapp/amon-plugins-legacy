@@ -57,7 +57,7 @@ class MySQLPLugin(AmonPlugin):
 
 
 		if socket:
-			self.connection = MySQLdb.connect(unix_socket=mysql_sock, user=user, passwd=password)
+			self.connection = MySQLdb.connect(unix_socket=socket, user=user, passwd=password)
 		else:
 			self.connection = MySQLdb.connect(host=host,port=port,user=user, passwd=password)
 
@@ -95,4 +95,5 @@ class MySQLPLugin(AmonPlugin):
 		
 
 		cursor.close()
+		self.connection.close()
 		del cursor

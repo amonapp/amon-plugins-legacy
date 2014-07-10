@@ -4,7 +4,7 @@ from amonagent.plugin import AmonPlugin
 
 class ApachePlugin(AmonPlugin):
 	
-	VERSION = '1.0'
+	VERSION = '1.0.1'
 
 	GAUGES = {
 		'IdleWorkers': 'performance.idle_workers',
@@ -31,18 +31,22 @@ class ApachePlugin(AmonPlugin):
 
 		response = requests.get(status_url)
 		
-		status = response.text.splitlines()
-		for line in status:
-			key, value = line.split(':')
-	
-			if key in self.GAUGES.keys():
-				normalized_key = self.GAUGES[key]
+		if response.status_code == 200:
+			status = response.text.splitlines()
+		
+			for line in status:
+				key, value = line.split(':')
+		
+				if key in self.GAUGES.keys():
+					normalized_key = self.GAUGES[key]
+					
+
+					try:
+						value = float(value)
+					except ValueError:
+						continue
+
 				
-
-				try:
-					value = float(value)
-				except ValueError:
-					continue
-
-			
-				self.gauge(normalized_key, value)
+					self.gauge(normalized_key, value)
+		else:
+			self.log.error(response.text)

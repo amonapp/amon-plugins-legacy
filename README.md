@@ -10,17 +10,7 @@ Each folder in this repository represents one Amon plugin.
 How to Install a plugin on your server
 ---------------------------------
 
-First you need to make sure that the amonagent is already installed and running. The required version is 0.8+
-
-	$ /etc/init.d/amon-agent status
-
-
-The plugins for Amon are in a git repository located in `/etc/amonagent/plugins`
-To enable a plugin you have to do the following. I am going to use the Apache plugin as an example:
-	
-	$ cp /etc/amonagent/plugins/apache/apache.example.conf /etc/amonagent/plugins-enabled/apache.conf
-	$ python install /etc/amonagent/plugins/apache/requirements.txt
-	$ /etc/init.d/amon-agent plugins
+You will find detailed instructions about how to install a plugin in the <a href="https://github.com/amonapp/amon-plugins">github repository</a> folder for this plugin.
 	
 
 How to Make your own Amon plugin

@@ -110,3 +110,4 @@ SELECT datname,
 				plugin=self.VERSION)
 
 		cursor.close()
+		self.connection.close()
