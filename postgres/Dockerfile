@@ -12,13 +12,16 @@ RUN echo 'deb http://bg.archive.ubuntu.com/ubuntu trusty main universe' > /etc/a
 RUN echo 'deb http://packages.amon.cx/repo amon contrib' >> /etc/apt/sources.list
 RUN apt-get update
 
-RUN apt-get install -y --force-yes python python-dev
-RUN apt-get install -y --force-yes amon-agent mongodb-server
+RUN apt-get install -y --force-yes amon-agent python-dev libpq-dev postgresql
+
+
+RUN /etc/init.d/amon-agent status
 
 ADD hosts /etc/amonagent/hosts
-ADD mongo/mongo.yml /etc/amonagent/plugins/mongo/mongo.yml
+ADD postgres/postgres.yml /etc/amonagent/plugins/postgres/postgres.yml
+
 
 RUN pip install ansible
-RUN ansible-playbook /etc/amonagent/plugins/mongo/mongo.yml -i /etc/amonagent/hosts -v
+RUN ansible-playbook /etc/amonagent/plugins/postgres/postgres.yml -i /etc/amonagent/hosts -v
 
 CMD ["/bin/bash"]

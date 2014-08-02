@@ -1,0 +1,22 @@
+- hosts: all
+  sudo_user: postgres
+  vars:
+    plugins_path: "/etc/amonagent/plugins/postgres"
+    enabled_plugins: "/etc/amonagent/plugins-enabled"
+    name: "postgres"
+  # vars_prompt:
+  # - name: "password"
+  #   prompt: "Please enter your MongoDB connection string (Example: 127.0.0.1:27017/db)"
+  tasks:
+  - template: src={{ plugins_path }}/{{ name }}.conf.example dest={{ enabled_plugins }}/{{ name }}.conf
+  - name: Install Plugin requirements
+    pip: requirements={{ plugins_path }}/requirements.txt
+  - name: Restart the agent
+    command: /etc/init.d/amon-agent restart
+  - name: Start postgres 
+    command: service postgresql start
+  - name: Add Amon user 
+    sudo: True
+    postgresql_user: db=pg_stat_database name=amon password=ceec4eif7ya priv=SELECT
+  - name: Test the plugins
+    command: /etc/init.d/amon-agent test_plugins
