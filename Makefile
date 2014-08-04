@@ -1,5 +1,5 @@
 cleanup:
-	rm Dockerfile
+	rm -f Dockerfile
 
 test_mongo: cleanup
 	cp mongo/Dockerfile Dockerfile

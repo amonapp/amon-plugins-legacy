@@ -1,5 +1,5 @@
 {
-	"user": "postgres",
-	"password": "123456",
-	"database": "database"
+	"user": "amon",
+	"password": "{{ password }}",
+	"database": "{{ database }}"
 }
