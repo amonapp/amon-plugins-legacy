@@ -1,23 +1,13 @@
-FROM phusion/baseimage:latest
-MAINTAINER Martin Rusev
+FROM amonbase:latest
 
-RUN apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv AD53961F
-
-RUN echo 'deb http://bg.archive.ubuntu.com/ubuntu trusty main universe' > /etc/apt/sources.list && \
-    echo 'deb http://bg.archive.ubuntu.com/ubuntu trusty-updates main restricted' >> /etc/apt/sources.list && \
-    echo 'deb http://bg.archive.ubuntu.com/ubuntu trusty-security main' >> /etc/apt/sources.list
-
-
-
-RUN echo 'deb http://packages.amon.cx/repo amon contrib' >> /etc/apt/sources.list
 RUN apt-get update
-
-RUN apt-get install -y --force-yes python python-dev
 RUN apt-get install -y --force-yes amon-agent mongodb-server
 
 ADD hosts /etc/amonagent/hosts
 ADD mongo/mongo.yml /etc/amonagent/plugins/mongo/mongo.yml
 ADD mongo/mongo.conf.example /etc/amonagent/plugins/mongo/mongo.conf.example
+
+RUN service mongodb start
 
 RUN ansible-playbook /etc/amonagent/plugins/mongo/mongo.yml -i /etc/amonagent/hosts -v
 

@@ -2,7 +2,7 @@
   vars:
     plugins_path: "/etc/amonagent/plugins/"
     enabled_plugins: "/etc/amonagent/plugins-enabled/"
-    mongo_url: "localhost:27017/test"
+    uri: "localhost:27017/test"
   # vars_prompt:
   # - name: "password"
   #   prompt: "Please enter your MongoDB connection string (Example: 127.0.0.1:27017/db)"
@@ -16,11 +16,9 @@
   - template: src={{ plugins_path }}mongo/mongo.conf.example dest={{ enabled_plugins }}mongo.conf
   - name: Install Plugin requirements
     pip: requirements={{ plugins_path }}mongo/requirements.txt
-  - name: Restart the agent
-    command: /etc/init.d/amon-agent restart
-  - name: Start mongodb 
-    command: service mongodb start
-  - name: Check MongoDB 
-    command: service mongodb status
+  # - name: Restart the agent
+  #   command: /etc/init.d/amon-agent restart
+  # - name: Check MongoDB 
+  #   command: service mongodb restart
   - name: Test the plugins
     command: /etc/init.d/amon-agent test_plugins
