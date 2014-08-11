@@ -7,6 +7,11 @@ test_mongo: cleanup
 	rm Dockerfile
 
 
+test_apache: cleanup
+	cp apache/Dockerfile Dockerfile
+	docker build --rm=true .
+	rm Dockerfile
+
 test_nginx: cleanup
 	cp nginx/Dockerfile Dockerfile
 	docker build --rm=true .

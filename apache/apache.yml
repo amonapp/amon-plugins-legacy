@@ -1,0 +1,13 @@
+- hosts: localhost
+  connection: local
+  vars:
+    plugins_path: "/etc/amonagent/plugins/apache"
+    enabled_plugins: "/etc/amonagent/plugins-enabled"
+    name: "apache"
+  tasks:
+  - template: src={{ plugins_path }}/{{ name }}.conf.example dest={{ enabled_plugins }}/{{ name }}.conf
+  - template: src={{ plugins_path }}/status_template dest=/etc/apache2/mods-enabled/status.conf
+  - name: Restart apache
+    command: /etc/init.d/apache2 restart
+  - name: Test the plugins
+    command: /etc/init.d/amon-agent test_plugins
