@@ -1,6 +1,5 @@
 FROM amonbase:latest
 
-ENV AMONENV test
 RUN apt-get install -y --force-yes amon-agent redis-server
 
 
