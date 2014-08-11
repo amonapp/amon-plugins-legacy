@@ -4,7 +4,7 @@ from amonagent.plugin import AmonPlugin
 
 class RedisPlugin(AmonPlugin):
 
-	VERSION = '1.0'
+	VERSION = '1.1'
 
 	GAUGES = {
 		# Append-only metrics
@@ -57,13 +57,9 @@ class RedisPlugin(AmonPlugin):
 
 
 	def collect(self):
-		host = self.config.get('host', 'localhost')
-		port = self.config.get('port', 6379)
-		password = self.config.get('password')
-		db = self.config.get('db', 0)
+		url = self.config.get('url', 'redis://localhost:6379/0')
 
-		self.conn = redis.StrictRedis(host=host, port=port, db=db, password=password)
-
+		self.conn = redis.StrictRedis.from_url(url=url)
 
 		try:
 			info = self.conn.info()

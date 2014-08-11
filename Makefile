@@ -9,7 +9,7 @@ test_mongo: cleanup
 
 test_redisdb: cleanup
 	cp redisdb/Dockerfile Dockerfile
-	docker build ---rm=true .
+	docker build --rm=true .
 	rm Dockerfile
 
 

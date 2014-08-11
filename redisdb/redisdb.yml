@@ -1,11 +1,14 @@
-- hosts: all
+- hosts: localhost
+  connection: local
   vars:
     plugins_path: "/etc/amonagent/plugins/redisdb"
     enabled_plugins: "/etc/amonagent/plugins-enabled"
     name: "redisdb"
+    url: "redis://localhost:6379/0"
   # vars_prompt:
-  # - name: "password"
-  #   prompt: "Please enter your MongoDB connection string (Example: 127.0.0.1:27017/db)"
+  # - name: "url"
+  #   prompt: "Please enter your Redis connection string (Example: redis://localhost:6379/0)"
+  #   when: amonenv is not defined
   tasks:
   - template: src={{ plugins_path }}/{{ name }}.conf.example dest={{ enabled_plugins }}/{{ name }}.conf
   - name: Install Plugin requirements
