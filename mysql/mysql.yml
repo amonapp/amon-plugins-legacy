@@ -2,14 +2,14 @@
   connection: local
   sudo: True
   vars:
-    plugins_path: "/etc/amonagent/plugins/postgres"
+    plugins_path: "/etc/amonagent/plugins/mysql"
     enabled_plugins: "/etc/amonagent/plugins-enabled"
-    name: "postgres"
+    name: "mysql"
     password: "{{ lookup('password', '/tmp/passwordfile chars=ascii_letters') }}"
     database: "amon"
   # vars_prompt:
   # - name: "database"
-  #   prompt: "Please select the PostgreSQL database you wish to monitor"
+  #   prompt: "Please select the MySQL database you wish to monitor"
   #   private: no
   tasks:
     - 
@@ -18,7 +18,7 @@
       when: ansible_os_family == "RedHat"
     - 
       name: Install psycopg2
-      yum: name=python-psycopg2
+      yum: name=python-mysqldb
       when: ansible_os_family == "RedHat"
     - 
       name: Install python-dev
@@ -26,41 +26,20 @@
       when: ansible_os_family == "Debian"
     - 
       name: Install psycopg2
-      apt: name=python-psycopg2
+      apt: name=python-mysqldb
       when: ansible_os_family == "Debian"
     - 
       template: src={{ plugins_path }}/{{ name }}.conf.example dest={{ enabled_plugins }}/{{ name }}.conf
     - 
-      name: Restart the agent
-      command: /etc/init.d/amon-agent restart
-    - 
-      name: Start postgres 
-      command: service postgresql start
-    - 
-      name: Create a database
-      sudo: True
-      sudo_user: postgres 
-      postgresql_db: name=amon
+      name: Start MySQL 
+      command: service mysql start
     - 
       name: Add Amon user 
       sudo: True
-      sudo_user: postgres 
-      postgresql_user: name=amon db={{database}} password={{password}} priv=CONNECT
+      mysql_user: name=amon password={{ password }} priv=*.*:ALL state=present
     - 
       name: Test the config file
       command: cat {{ enabled_plugins }}/{{ name }}.conf
-    - 
-       name: Grant SELECT privilegies
-       sudo: True
-       sudo_user: postgres
-       postgresql_privs:
-         database={{ database }}
-         state=present
-         objs=ALL_IN_SCHEMA
-         privs=SELECT
-         type=table
-         roles=amon
-         grant_option=yes
     - 
       name: Test the plugins
       command: /etc/init.d/amon-agent test_plugins

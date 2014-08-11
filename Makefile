@@ -6,6 +6,10 @@ test_mongo: cleanup
 	docker build --rm=true .
 	rm Dockerfile
 
+test_mysql: cleanup
+	cp mysql/Dockerfile Dockerfile
+	docker build --rm=true .
+	rm Dockerfile
 
 test_apache: cleanup
 	cp apache/Dockerfile Dockerfile

@@ -4,6 +4,7 @@
     plugins_path: "/etc/amonagent/plugins/apache"
     enabled_plugins: "/etc/amonagent/plugins-enabled"
     name: "apache"
+    status_url: "http://127.0.0.1/server_status"
   tasks:
   - template: src={{ plugins_path }}/{{ name }}.conf.example dest={{ enabled_plugins }}/{{ name }}.conf
   - template: src={{ plugins_path }}/status_template dest=/etc/apache2/mods-enabled/status.conf
