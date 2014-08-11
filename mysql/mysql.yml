@@ -36,7 +36,7 @@
     - 
       name: Add Amon user 
       sudo: True
-      mysql_user: name=amon password={{ password }} priv=*.*:ALL state=present
+      mysql_user: name=amon password={{ password }} priv=*.*:"REPLICATION CLIENT, SELECT" state=present
     - 
       name: Test the config file
       command: cat {{ enabled_plugins }}/{{ name }}.conf
