@@ -6,11 +6,11 @@
     enabled_plugins: "/etc/amonagent/plugins-enabled"
     name: "postgres"
     password: "{{ lookup('password', '/tmp/passwordfile chars=ascii_letters') }}"
-    database: "amon"
-  # vars_prompt:
-  # - name: "database"
-  #   prompt: "Please select the PostgreSQL database you wish to monitor"
-  #   private: no
+    # database: "amon"
+  vars_prompt:
+  - name: "database"
+    prompt: "Please select the PostgreSQL database you wish to monitor"
+    private: no
   tasks:
     - 
       name: Install python-devel

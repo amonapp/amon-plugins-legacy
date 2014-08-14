@@ -3,10 +3,10 @@
   vars:
     plugins_path: "/etc/amonagent/plugins/"
     enabled_plugins: "/etc/amonagent/plugins-enabled/"
-    uri: "localhost:27017/test"
-  # vars_prompt:
-  # - name: "uri"
-  #   prompt: "Please enter your MongoDB connection string (Example: mongodb://127.0.0.1:27017/db)"
+    # uri: "localhost:27017/test"
+  vars_prompt:
+  - name: "uri"
+    prompt: "Please enter your MongoDB connection string (Example: mongodb://127.0.0.1:27017/db)"
   tasks:
   - name: Install python-devel
     yum: name=python-devel state=latest
