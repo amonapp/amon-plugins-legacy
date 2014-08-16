@@ -82,7 +82,7 @@ class MongoPlugin(AmonPlugin):
 		server =  self.config.get('server')
 
 		if server == None:
-			self.log.warn("Missing 'server' in mongo config")
+			self.error("Missing 'server' in mongo config")
 			return
 		
 		
@@ -99,13 +99,23 @@ class MongoPlugin(AmonPlugin):
 		do_auth = True
 		if username is None or password is None:
 			self.log.debug("Mongo: cannot extract username and password from config %s" % server)
+			
 			do_auth = False
 
-		self.conn = pymongo.Connection(server, network_timeout=self.DEFAULT_TIMEOUT)
+		try:
+			self.conn = pymongo.Connection(server, network_timeout=self.DEFAULT_TIMEOUT)
+		except Exception, e:
+			self.error(e)
+			return
+
+		if self.conn == None:
+			return
+		
 		db = self.conn[db_name]
+
 		if do_auth:
 			if not db.authenticate(username, password):
-				self.log.error("Mongo: cannot connect with config %s" % server)
+				self.error("Mongo: cannot connect with config %s" % server)
 
 		status = db["$cmd"].find_one({"serverStatus": 1})
 		status['stats'] = db.command('dbstats')

@@ -1,3 +1,8 @@
+1.0.2
+=======
+
+* Sends error data to Amon
+
 1.0.1
 =======
 
