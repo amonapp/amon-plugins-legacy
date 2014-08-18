@@ -22,11 +22,23 @@ class NginxPlugin(AmonPlugin):
 	def collect(self):
 		status_url =  self.config.get('status_url')
 
-		response = requests.get(status_url)
+
+		try:
+			response = requests.get(status_url)
+		except Exception, e:
+			self.error(e)
+			return
+	
+
 		whitelist = ['accepts','handled','requests']
 		
 
-		if response.text:
+		try:
+			status_code = response.status_code
+		except:
+			status_code = None
+
+		if status_code == 200:
 			status = response.text.splitlines()
 			for line in status:
 				stats_line = re.match('\s*(\d+)\s+(\d+)\s+(\d+)\s*$', line)
