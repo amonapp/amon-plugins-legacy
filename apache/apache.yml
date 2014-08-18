@@ -13,4 +13,4 @@
   - name: Restart apache
     command: /etc/init.d/apache2 restart
   - name: Test the plugins
-    command: /etc/init.d/amon-agent test_plugins
+    command: amonpm test

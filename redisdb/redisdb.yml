@@ -17,4 +17,4 @@
   - name: Start redis 
     command: service redis-server start
   - name: Test the plugins
-    command: /etc/init.d/amon-agent test_plugins
+    command: amonpm test

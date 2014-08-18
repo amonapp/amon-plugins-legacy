@@ -18,4 +18,4 @@
   - name: Install Plugin requirements
     pip: requirements={{ plugins_path }}mongo/requirements.txt
   - name: Test the plugins
-    command: /etc/init.d/amon-agent test_plugins
+    command: amonpm test
