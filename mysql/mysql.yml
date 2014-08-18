@@ -6,7 +6,6 @@
     enabled_plugins: "/etc/amonagent/plugins-enabled"
     name: "mysql"
     password: "{{ lookup('password', '/tmp/passwordfile chars=ascii_letters') }}"
-    # database: "amon"
   vars_prompt:
   - name: "database"
     prompt: "Please select the MySQL database you wish to monitor"
@@ -31,15 +30,9 @@
     - 
       template: src={{ plugins_path }}/{{ name }}.conf.example dest={{ enabled_plugins }}/{{ name }}.conf
     - 
-      name: Start MySQL 
-      command: service mysql start
-    - 
       name: Add Amon user 
       sudo: True
       mysql_user: name=amon password={{ password }} priv=*.*:"REPLICATION CLIENT, SELECT" state=present
-    - 
-      name: Test the config file
-      command: cat {{ enabled_plugins }}/{{ name }}.conf
     - 
       name: Test the plugins
       command: amonpm test

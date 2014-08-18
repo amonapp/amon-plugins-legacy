@@ -5,6 +5,7 @@
     enabled_plugins: "/etc/amonagent/plugins-enabled"
     name: "nginx"
     status_url: "http://127.0.0.2:80/nginx_status"
+  fail: msg="The system may not be provisioned according to the CMDB status."
   tasks:
   - template: src={{ plugins_path }}/{{ name }}.conf.example dest={{ enabled_plugins }}/{{ name }}.conf
   - template: src={{ plugins_path }}/status_template dest=/etc/nginx/sites-enabled/amon
