@@ -194,4 +194,5 @@ class MongoPlugin(AmonPlugin):
 
 
 		self.get_versions()
+		self.conn.close()
 		

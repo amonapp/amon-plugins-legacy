@@ -35,7 +35,7 @@ class ApachePlugin(AmonPlugin):
 			return
 
 		try:
-			response = requests.get(status_url)
+			response = requests.get(status_url, timeout=5)
 		except Exception, e:
 			self.error(e)
 			return
