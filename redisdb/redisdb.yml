@@ -1,20 +1,20 @@
 - hosts: localhost
   connection: local
+  sudo: True
   vars:
     plugins_path: "/etc/amonagent/plugins/redisdb"
     enabled_plugins: "/etc/amonagent/plugins-enabled"
     name: "redisdb"
   vars_prompt:
   - name: "url"
-    prompt: "Please enter your Redis connection string (Example: redis://localhost:6379/0)"
+    default: "redis://localhost:6379/0"
+    prompt: "Please enter your Redis connection string:"
     private: no
   tasks:
   - template: src={{ plugins_path }}/{{ name }}.conf.example dest={{ enabled_plugins }}/{{ name }}.conf
   - name: Install Plugin requirements
     pip: requirements={{ plugins_path }}/requirements.txt
-  - name: Restart the agent
-    command: /etc/init.d/amon-agent restart
-  - name: Start redis 
-    command: service redis-server start
-  - name: Test the plugins
-    command: amonpm test
+  - 
+    service: name=amon-agent state=restarted
+  - 
+    service: name=redis-server state=started

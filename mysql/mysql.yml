@@ -33,6 +33,3 @@
       name: Add Amon user 
       sudo: True
       mysql_user: name=amon password={{ password }} priv=*.*:"REPLICATION CLIENT, SELECT" state=present
-    - 
-      name: Test the plugins
-      command: amonpm test

@@ -1,14 +1,15 @@
 - hosts: localhost
   connection: local
+  sudo: True
   vars:
     plugins_path: "/etc/amonagent/plugins/nginx"
     enabled_plugins: "/etc/amonagent/plugins-enabled"
     name: "nginx"
     status_url: "http://127.0.0.1:2464/nginx_status"
   tasks:
-  - template: src={{ plugins_path }}/{{ name }}.conf.example dest={{ enabled_plugins }}/{{ name }}.conf
-  - template: src={{ plugins_path }}/status_template dest=/etc/nginx/sites-enabled/amon
-  - name: Restart nginx
-    command: /etc/init.d/nginx restart
-  - name: Test the plugins
-    command: amonpm test
+  - 
+    template: src={{ plugins_path }}/{{ name }}.conf.example dest={{ enabled_plugins }}/{{ name }}.conf
+  - 
+    template: src={{ plugins_path }}/status_template dest=/etc/nginx/sites-enabled/amon
+  - 
+    service: name=nginx state=restarted

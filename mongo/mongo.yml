@@ -1,5 +1,6 @@
 - hosts: localhost
   connection: local
+  sudo: True
   vars:
     plugins_path: "/etc/amonagent/plugins/"
     enabled_plugins: "/etc/amonagent/plugins-enabled/"
@@ -8,14 +9,16 @@
     prompt: "Please enter your MongoDB connection string (Example: mongodb://127.0.0.1:27017/db)"
     private: no
   tasks:
-  - name: Install python-devel
+  - 
+    name: Install python-devel
     yum: name=python-devel state=latest
     when: ansible_os_family == "RedHat"
-  - name: Install python-dev
+  - 
+    name: Install python-dev
     apt: name=python-dev
     when: ansible_os_family == "Debian"
-  - template: src={{ plugins_path }}mongo/mongo.conf.example dest={{ enabled_plugins }}mongo.conf
-  - name: Install Plugin requirements
+  - 
+    template: src={{ plugins_path }}mongo/mongo.conf.example dest={{ enabled_plugins }}mongo.conf
+  - 
+    name: Install Plugin requirements
     pip: requirements={{ plugins_path }}mongo/requirements.txt
-  - name: Test the plugins
-    command: amonpm test

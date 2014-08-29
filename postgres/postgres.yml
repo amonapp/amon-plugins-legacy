@@ -30,11 +30,7 @@
     - 
       template: src={{ plugins_path }}/{{ name }}.conf.example dest={{ enabled_plugins }}/{{ name }}.conf
     - 
-      name: Restart the agent
-      command: /etc/init.d/amon-agent restart
-    - 
-      name: Start postgres 
-      command: service postgresql start
+      service: name=postgresql state=started
     - 
       name: Add Amon user 
       sudo: True
@@ -55,6 +51,3 @@
          type=table
          roles=amon
          grant_option=yes
-    - 
-      name: Test the plugins
-      command: amonpm test

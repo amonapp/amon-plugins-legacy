@@ -1,16 +1,18 @@
 - hosts: localhost
   connection: local
+  sudo: True
   vars:
     plugins_path: "/etc/amonagent/plugins/apache"
     enabled_plugins: "/etc/amonagent/plugins-enabled"
     name: "apache"
     status_url: "http://127.0.0.1/server_status"
   tasks:
-  - name: Apache | Enable mod_status
+  - 
+    name: Apache | Enable mod_status
     command: a2enmod status
-  - template: src={{ plugins_path }}/{{ name }}.conf.example dest={{ enabled_plugins }}/{{ name }}.conf
-  - template: src={{ plugins_path }}/status_template dest=/etc/apache2/mods-enabled/status.conf
-  - name: Restart apache
-    command: /etc/init.d/apache2 restart
-  - name: Test the plugins
-    command: amonpm test
+  - 
+    template: src={{ plugins_path }}/{{ name }}.conf.example dest={{ enabled_plugins }}/{{ name }}.conf
+  - 
+    template: src={{ plugins_path }}/status_template dest=/etc/apache2/mods-enabled/status.conf
+  -
+    service: name=apache2 state=restarted
