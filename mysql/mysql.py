@@ -3,7 +3,7 @@ try:
 except ImportError:
 	raise Exception("Cannot import MySQLdb module.")
 
-from amonagent.plugin import AmonPlugin
+from amonagent.modules.plugins import AmonPlugin
 
 
 class MySQLPLugin(AmonPlugin):

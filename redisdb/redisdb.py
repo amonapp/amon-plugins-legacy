@@ -1,6 +1,6 @@
 import redis
 
-from amonagent.plugin import AmonPlugin
+from amonagent.modules.plugins import AmonPlugin
 
 class RedisPlugin(AmonPlugin):
 

@@ -7,7 +7,7 @@ except ImportError:
 
 from pymongo import uri_parser
 
-from amonagent.plugin import AmonPlugin
+from amonagent.modules.plugins import AmonPlugin
 
 class MongoPlugin(AmonPlugin):
 	

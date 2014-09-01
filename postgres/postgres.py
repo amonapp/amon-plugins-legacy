@@ -3,7 +3,7 @@ try:
 except ImportError:
 	raise ImportError("psycopg2 library cannot be imported. Please check the installation instruction at https://github.com/amonapp/amon-plugins/tree/master/postgres.")
 
-from amonagent.plugin import AmonPlugin
+from amonagent.modules.plugins import AmonPlugin
 
 
 class PostgresPlugin(AmonPlugin):

@@ -2,7 +2,7 @@ import requests
 import re
 import sys
 
-from amonagent.plugin import AmonPlugin
+from amonagent.modules.plugins import AmonPlugin
 
 class NginxPlugin(AmonPlugin):
 	"""Tracks basic nginx metrics via the status module
