@@ -5,6 +5,10 @@ import sys
 from amonagent.modules.plugins import AmonPlugin
 
 class NginxPlugin(AmonPlugin):
+
+
+	VERSION = '1.0.1'
+
 	"""Tracks basic nginx metrics via the status module
 	* number of connections
 	* number of requets per second

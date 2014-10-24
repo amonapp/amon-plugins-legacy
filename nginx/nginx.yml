@@ -6,10 +6,19 @@
     enabled_plugins: "/etc/amonagent/plugins-enabled"
     name: "nginx"
     status_url: "http://127.0.0.1:2464/nginx_status"
+
   tasks:
+  - name: Check Nginx directory structure
+    stat: path=/etc/nginx/sites-enabled
+    register: nginx_dir
   - 
     template: src={{ plugins_path }}/{{ name }}.conf.example dest={{ enabled_plugins }}/{{ name }}.conf
   - 
     template: src={{ plugins_path }}/status_template dest=/etc/nginx/sites-enabled/amon
+    when: nginx_dir.stat.exists
+
+  - 
+    template: src={{ plugins_path }}/status_template dest=/etc/nginx/conf.d/amon
+    when: not nginx_dir.stat.exists
   - 
     service: name=nginx state=restarted
