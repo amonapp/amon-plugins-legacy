@@ -10,6 +10,13 @@
   - name: "database"
     prompt: "Please select the MySQL database you wish to monitor"
     private: no
+  - name: "root_user"
+    prompt: "Please enter your root username (This will be used to create a readonly amon user)"
+    private: no
+    default: "root"
+  - name: "root_password"
+    prompt: "Please enter your root password"
+    private: no
   tasks:
     - 
       name: Install python-devel
@@ -31,5 +38,4 @@
       template: src={{ plugins_path }}/{{ name }}.conf.example dest={{ enabled_plugins }}/{{ name }}.conf
     - 
       name: Add Amon user 
-      sudo: True
-      mysql_user: name=amon password={{ password }} priv=*.*:"REPLICATION CLIENT, SELECT" state=present
+      mysql_user: login_user={{root_user}} login_password={{root_password}} name=amon password={{ password }} priv=*.*:"REPLICATION CLIENT, SELECT" state=present
