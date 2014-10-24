@@ -18,7 +18,7 @@
     when: nginx_dir.stat.exists
 
   - 
-    template: src={{ plugins_path }}/status_template dest=/etc/nginx/conf.d/amon
+    template: src={{ plugins_path }}/status_template dest=/etc/nginx/conf.d/amon.conf
     when: not nginx_dir.stat.exists
   - 
     service: name=nginx state=restarted
