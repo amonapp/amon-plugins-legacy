@@ -16,15 +16,15 @@
       yum: name=python-devel state=latest
       when: ansible_os_family == "RedHat"
     - 
-      name: Install psycopg2
-      yum: name=python-mysqldb
+      name: Install MySQL-python
+      yum: name=MySQL-python
       when: ansible_os_family == "RedHat"
     - 
       name: Install python-dev
       apt: name=python-dev
       when: ansible_os_family == "Debian"
     - 
-      name: Install psycopg2
+      name: Install python-mysqldb
       apt: name=python-mysqldb
       when: ansible_os_family == "Debian"
     - 

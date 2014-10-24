@@ -18,3 +18,7 @@
     service: name=amon-agent state=restarted
   - 
     service: name=redis-server state=started
+    when: ansible_os_family == "Debian"
+  - 
+    service: name=redis state=started
+    when: ansible_os_family == "RedHat"
