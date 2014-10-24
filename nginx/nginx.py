@@ -6,8 +6,7 @@ from amonagent.modules.plugins import AmonPlugin
 
 class NginxPlugin(AmonPlugin):
 
-
-	VERSION = '1.0.1'
+	VERSION = '1.0.2'
 
 	"""Tracks basic nginx metrics via the status module
 	* number of connections
@@ -23,6 +22,8 @@ class NginxPlugin(AmonPlugin):
 	Reading: 0 Writing: 2 Waiting: 6
 
 	"""
+
+
 	def collect(self):
 		status_url =  self.config.get('status_url')
 

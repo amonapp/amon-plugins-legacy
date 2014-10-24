@@ -7,25 +7,22 @@
     name: "apache"
     status_url: "http://127.0.0.1/server_status"
   tasks:
-  - name: Check Apache directory structure Ubuntu/Debian
-    stat: path=/etc/apache2
-    register: apache_dir_debian
-  - name: Check Apache directory structure CentOS
-    stat: path=/etc/httpd
-    register: apache_dir_centos
   - 
     name: Apache | Enable mod_status
     command: a2enmod status
-    ignore_errors: True
-    when: apache_dir_debian.stat.exists
+    when: ansible_os_family == "Debian"
   - 
     name: Copy the plugin configuration file 
     template: src={{ plugins_path }}/{{ name }}.conf.example dest={{ enabled_plugins }}/{{ name }}.conf
   - 
     template: src={{ plugins_path }}/status_template dest=/etc/apache2/mods-enabled/status.conf
-    when: apache_dir_debian.stat.exists
-  - 
-    template: src={{ plugins_path }}/status_template dest=/etc/httpd/conf.d/status.conf
-    when: apache_dir_centos.stat.exists
+    when: ansible_os_family == "Debian"
   -
     service: name=apache2 state=restarted
+    when: ansible_os_family == "Debian"
+  - 
+    template: src={{ plugins_path }}/status_template dest=/etc/httpd/conf.d/status.conf
+    when: ansible_os_family == "RedHat"
+  -
+    service: name=httpd state=restarted
+    when: ansible_os_family == "RedHat"
