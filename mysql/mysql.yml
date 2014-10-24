@@ -7,9 +7,6 @@
     name: "mysql"
     password: "{{ lookup('password', '/tmp/passwordfile chars=ascii_letters') }}"
   vars_prompt:
-  - name: "database"
-    prompt: "Please select the MySQL database you wish to monitor"
-    private: no
   - name: "root_user"
     prompt: "Please enter your root username (This will be used to create a readonly amon user)"
     private: no
