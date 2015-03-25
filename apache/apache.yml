@@ -5,7 +5,7 @@
     plugins_path: "/etc/amonagent/plugins/apache"
     enabled_plugins: "/etc/amonagent/plugins-enabled"
     name: "apache"
-    status_url: "http://127.0.0.1/server_status"
+    status_url: "http://127.0.0.1/server-status?auto"
   tasks:
   - 
     name: Apache | Enable mod_status
