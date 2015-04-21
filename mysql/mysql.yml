@@ -28,6 +28,10 @@
       apt: name=python-dev
       when: ansible_os_family == "Debian"
     - 
+      name: Install libmysqlclient
+      apt: name=libmysqlclient-dev
+      when: ansible_os_family == "Debian"
+    - 
       name: Install python-mysqldb
       apt: name=python-mysqldb
       when: ansible_os_family == "Debian"

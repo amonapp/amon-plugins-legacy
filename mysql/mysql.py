@@ -8,7 +8,7 @@ from amonagent.modules.plugins import AmonPlugin
 
 class MySQLPLugin(AmonPlugin):
 
-	VERSION = '1.0'
+	VERSION = '1.1'
 
 	GAUGES = {
 		'Max_used_connections': 'net.max_connections', 
@@ -45,6 +45,28 @@ class MySQLPLugin(AmonPlugin):
 		'Created_tmp_disk_tables': 'performance.created_tmp_disk_tables',
 		'Created_tmp_files': 'performance.created_tmp_files',
 	}
+
+	SLOW_QUERIES = """
+		SELECT
+	mysql.slow_log.query_time,
+	mysql.slow_log.rows_sent,
+	mysql.slow_log.rows_examined,
+	mysql.slow_log.lock_time,
+	mysql.slow_log.db,
+	mysql.slow_log.sql_text AS query,
+	mysql.slow_log.start_time
+FROM
+	mysql.slow_log
+WHERE
+	mysql.slow_log.query_time > 1
+ORDER BY
+	start_time DESC
+LIMIT 30
+"""
+
+	SLOW_QUERIES_ROWS = ['query_time','rows_sent',
+				'rows_examined','lock_time', 'db',
+				'query', 'start_time']
 
 
 	def _connect(self):
@@ -92,6 +114,31 @@ class MySQLPLugin(AmonPlugin):
 		self.version(mysql=mysql_version, 
 			plugin=self.VERSION,
 			mysqldb=MySQLdb.__version__)
+
+
+		cursor.execute(self.SLOW_QUERIES)
+
+		try:
+			cursor.execute(self.SLOW_QUERIES)
+			slow_queries_cursor = cursor.fetchall()
+		except:
+			slow_queries_cursor = False # Can't  fetch
+
+		# print slow_queries_cursor
+
+
+		if slow_queries_cursor:
+			slow_queries_result = {
+				'headers': self.SLOW_QUERIES_ROWS, 
+				'data': []
+			}
+			for r in slow_queries_cursor:
+				normalized_row = map(self.normalize_row_value, r)
+				slow_queries_result['data'].append(normalized_row)
+				
+			self.slow_queries(result=slow_queries_result)
+		
+		# SLOW QUERIES -- END	
 		
 
 		cursor.close()

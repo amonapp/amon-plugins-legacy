@@ -38,7 +38,41 @@ SELECT datname,
  WHERE datname not ilike 'template%%'
    AND datname not ilike 'postgres'
 """
+
 		
+	SLOW_QUERIES = """
+	SELECT
+    calls,
+    round(total_time::numeric, 1) AS total,
+    round((total_time / calls)::numeric, 3) AS per_call,
+    regexp_replace(query, '[ \t\n]+', ' ', 'g') AS query
+	FROM pg_stat_statements
+	WHERE calls > %s
+	ORDER BY total_time / calls DESC
+	LIMIT 15;
+"""
+
+	SLOW_QUERIES_ROWS = ['calls','total','per_call','query']
+
+	MISSING_INDEXES_QUERY = """
+	SELECT
+          relname AS table,
+          CASE idx_scan
+            WHEN 0 THEN 'Insufficient data'
+            ELSE (100 * idx_scan / (seq_scan + idx_scan))::text
+          END percent_of_times_index_used,
+          n_live_tup rows_in_table
+        FROM
+          pg_stat_user_tables
+        WHERE
+          idx_scan > 0
+          AND (100 * idx_scan / (seq_scan + idx_scan)) < 95
+          AND n_live_tup >= 10000
+        ORDER BY
+          n_live_tup DESC,
+          relname ASC
+"""
+	MISSING_INDEXES_ROWS = ['table', 'percent_of_times_index_used', 'rows_in_table']
 
 	def _get_connection(self):
 		
@@ -102,7 +136,41 @@ SELECT datname,
 
 		cursor.execute("SELECT version();")
 		result = cursor.fetchone()
+
+		cursor.execute("SELECT pg_database_size(current_database())")
+		result = cursor.fetchone()
 		
+		try:
+			db_size = result[0]
+		except:
+			db_size = False
+		if db_size: 
+			self.gauge('dbsize', db_size)
+
+		# SLOW QUERIES -- BEGIN 
+		query = self.SLOW_QUERIES % 10
+		self.log.debug("Running query: %s" % query)
+		
+
+		try:
+			cursor.execute(query)
+			slow_queries_cursor = cursor.fetchall()
+		except:
+			slow_queries_cursor = False # Can't  fetch
+
+		
+		if slow_queries_cursor:
+			slow_queries_result = {
+				'headers': self.SLOW_QUERIES_ROWS, 
+				'data': []
+			}
+			for r in slow_queries_cursor:
+				normalized_row = map(self.normalize_row_value, r)
+				slow_queries_result['data'].append(normalized_row)
+				
+			self.slow_queries(result=slow_queries_result)
+		
+		# SLOW QUERIES -- END	
 
 		if result:
 			self.version(psycopg2=psycopg2.__version__,
