@@ -124,9 +124,6 @@ LIMIT 30
 		except:
 			slow_queries_cursor = False # Can't  fetch
 
-		# print slow_queries_cursor
-
-
 		if slow_queries_cursor:
 			slow_queries_result = {
 				'headers': self.SLOW_QUERIES_ROWS, 

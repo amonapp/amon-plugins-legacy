@@ -31,24 +31,30 @@ class PostgresPlugin(AmonPlugin):
 	DESCRIPTORS =  [('datname', 'db') ],
 
 	
-	QUERY =  """
-SELECT datname,
-	   %s
-  FROM pg_stat_database
- WHERE datname not ilike 'template%%'
-   AND datname not ilike 'postgres'
+	DATABASE_STATS_QUERY =  """
+	SELECT datname,
+		   %s
+	  FROM pg_stat_database
+	 WHERE datname not ilike 'template%%'
+	   AND datname not ilike 'postgres'
 """
 
 		
 	SLOW_QUERIES = """
-	SELECT
-    calls,
-    round(total_time::numeric, 1) AS total,
-    round((total_time / calls)::numeric, 3) AS per_call,
-    regexp_replace(query, '[ \t\n]+', ' ', 'g') AS query
-	FROM pg_stat_statements
-	WHERE calls > %s
-	ORDER BY total_time / calls DESC
+		SELECT
+		calls,
+		round(total_time :: NUMERIC, 1) AS total,
+		round(
+			(total_time / calls) :: NUMERIC,
+			3
+		) AS per_call,
+		regexp_replace(query, '[ \t\n]+', ' ', 'g') AS query
+	FROM
+		pg_stat_statements
+	WHERE
+		calls > % s
+	ORDER BY
+		total_time / calls DESC
 	LIMIT 15;
 """
 
@@ -56,23 +62,51 @@ SELECT datname,
 
 	MISSING_INDEXES_QUERY = """
 	SELECT
-          relname AS table,
-          CASE idx_scan
-            WHEN 0 THEN 'Insufficient data'
-            ELSE (100 * idx_scan / (seq_scan + idx_scan))::text
-          END percent_of_times_index_used,
-          n_live_tup rows_in_table
-        FROM
-          pg_stat_user_tables
-        WHERE
-          idx_scan > 0
-          AND (100 * idx_scan / (seq_scan + idx_scan)) < 95
-          AND n_live_tup >= 10000
-        ORDER BY
-          n_live_tup DESC,
-          relname ASC
+		  relname AS table,
+		  CASE idx_scan
+			WHEN 0 THEN 'Insufficient data'
+			ELSE (100 * idx_scan / (seq_scan + idx_scan))::text
+		  END percent_of_times_index_used,
+		  n_live_tup rows_in_table
+		FROM
+		  pg_stat_user_tables
+		WHERE
+		  idx_scan > 0
+		  AND (100 * idx_scan / (seq_scan + idx_scan)) < 95
+		  AND n_live_tup >= 10000
+		ORDER BY
+		  n_live_tup DESC,
+		  relname ASC
 """
 	MISSING_INDEXES_ROWS = ['table', 'percent_of_times_index_used', 'rows_in_table']
+
+
+	TABLES_SIZE_QUERY = """
+		SELECT
+			C .relname AS NAME,
+			CASE
+		WHEN C .relkind = 'r' THEN
+			'table'
+		ELSE
+			'index'
+		END AS TYPE,
+		 pg_size_pretty (pg_table_size(C .oid)) AS SIZE
+		FROM
+			pg_class C
+		LEFT JOIN pg_namespace n ON (n.oid = C .relnamespace)
+		WHERE
+			n.nspname NOT IN (
+				'pg_catalog',
+				'information_schema'
+			)
+		AND n.nspname !~ '^pg_toast'
+		AND C .relkind IN ('r', 'i')
+		ORDER BY
+			pg_table_size (C .oid) DESC,
+			NAME ASC
+"""
+
+	TABLES_SIZE_ROWS = ['name','type','size']
 
 	def _get_connection(self):
 		
@@ -103,7 +137,7 @@ SELECT datname,
 		cursor = self.connection.cursor()
 		cols = self.GAUGES.keys() + self.COUNTERS.keys()
 		
-		query = self.QUERY % (", ".join(cols))
+		query = self.DATABASE_STATS_QUERY % (", ".join(cols))
 		self.log.debug("Running query: %s" % query)
 		cursor.execute(query)
 
@@ -111,26 +145,26 @@ SELECT datname,
 
 		field_names =[f[0] for f in cursor.description]
 		
-	 	for row in result:
-	 		assert len(row) == len(field_names)
+		for row in result:
+			assert len(row) == len(field_names)
 
 
-	 		values = dict(zip(field_names, list(row)))
+			values = dict(zip(field_names, list(row)))
 			
-	 		# Save the values only for the database defined in the config file 
-	 		datname = values.get('datname')
+			# Save the values only for the database defined in the config file 
+			datname = values.get('datname')
 	 
-	 		if datname == self.database:
-	 			for k,v in values.items():
-	 				
-	 				if k in self.GAUGES:
-	 					key = self.GAUGES[k] 
-	 					self.gauge(key, v)
+			if datname == self.database:
+				for k,v in values.items():
+					
+					if k in self.GAUGES:
+						key = self.GAUGES[k] 
+						self.gauge(key, v)
 	 
-	 				if k in self.COUNTERS:
-	 					key = self.COUNTERS[k] 
+					if k in self.COUNTERS:
+						key = self.COUNTERS[k] 
 
-	 					self.counter(key, v)
+						self.counter(key, v)
 		
 
 
@@ -168,9 +202,30 @@ SELECT datname,
 				normalized_row = map(self.normalize_row_value, r)
 				slow_queries_result['data'].append(normalized_row)
 				
-			self.slow_queries(result=slow_queries_result)
+			self.result['slow_queries'] = slow_queries_result
 		
 		# SLOW QUERIES -- END	
+
+
+		# TABLES SIZE -- BEGIN
+
+		try:
+			cursor.execute(self.TABLES_SIZE_QUERY)
+			tables_sizes_cursor = cursor.fetchall()
+		except:
+			tables_sizes_cursor = False # Can't  fetch
+
+		if tables_sizes_cursor:
+			tables_sizes_result = {
+				'headers': self.TABLES_SIZE_ROWS, 
+				'data': []
+			}
+			for r in tables_sizes_cursor:
+				normalized_row = map(self.normalize_row_value, r)
+				tables_sizes_result['data'].append(normalized_row)
+				
+			self.result['tables_size'] = tables_sizes_result
+		# TABLES SIZE -- END
 
 		if result:
 			self.version(psycopg2=psycopg2.__version__,

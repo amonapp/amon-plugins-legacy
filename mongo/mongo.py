@@ -70,6 +70,8 @@ class MongoPlugin(AmonPlugin):
 
 	DEFAULT_TIMEOUT = 10
 
+	SLOW_QUERIES_ROWS = ['millis', 'ns', 'op', 'query', 'ts']
+	COLLECTION_ROWS = ['count','ns','avgObjSize', 'totalIndexSize', 'indexSizes', 'size']
 
 	def get_versions(self):
 		mongodb_version = self.conn.server_info()['version']
@@ -193,6 +195,46 @@ class MongoPlugin(AmonPlugin):
 				self.counter(m, value)
 
 
+		# Performance 
+		params = {"millis": { "$gt" : 10 }}
+		performance = db['system.profile']\
+		.find(params)\
+		.sort("ts", pymongo.DESCENDING)\
+		.limit(10)
+
+		if performance.clone().count() > 0:
+			
+			slow_queries_result = {
+				'headers': self.SLOW_QUERIES_ROWS, 
+				'data': []
+			}
+			
+			for r in performance: 
+				row_list = [r.get(key) for key in self.SLOW_QUERIES_ROWS]
+				normalized_row = map(self.normalize_row_value, row_list)
+
+				slow_queries_result['data'].append(normalized_row)
+
+			self.result['slow_queries'] = slow_queries_result
+
+		# Collection sizes
+		collections = db.collection_names(include_system_collections=False)
+		if len(collections) > 0:
+
+			collection_size_results = {
+				'headers': self.COLLECTION_ROWS, 
+				'data': []
+			}
+
+
+			for col in collections:
+				collection_stats = db.command("collstats", col)
+				col_list = [collection_stats.get(key) for key in self.COLLECTION_ROWS]
+				normalized_row = map(self.normalize_row_value, col_list)
+
+				collection_size_results['data'].append(normalized_row)
+
+			self.result['tables_size'] = collection_size_results
+
 		self.get_versions()
 		self.conn.close()
-		
