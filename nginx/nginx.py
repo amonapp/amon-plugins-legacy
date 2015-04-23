@@ -74,10 +74,8 @@ class NginxPlugin(AmonPlugin):
 
 
 		# Get detailed stats with goaccess
-		 # goaccess -f /var/log/nginx.simplistic.log -o json --log-format='%h %^[%d:%t %^] "%r" %s %b' --date-format="%d/%b/%Y" --time-format="%H:%M:%S"
 		configfile = tempfile.NamedTemporaryFile()
-		log_content = "color_scheme 0"
-		log_content += """
+		log_content = """
 date_format %d/%b/%Y
 log_format %h %^[%d:%t %^] "%r" %s %b
 time_format  %H:%M:%S
@@ -85,11 +83,10 @@ time_format  %H:%M:%S
 		configfile.write(log_content)
 		configfile.flush()
 
-
 		command = ["goaccess", "-f", log_file, "-p", configfile.name, "-o", "json"]
 
-		server = subprocess.Popen(command, stdout=subprocess.PIPE if format else None)
-		out, err = server.communicate()
+		server_data = subprocess.Popen(command, stdout=subprocess.PIPE if format else None)
+		out, err = server_data.communicate()
 
 		try:
 			json_result = json.loads(out)
