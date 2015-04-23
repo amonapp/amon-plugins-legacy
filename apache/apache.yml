@@ -6,6 +6,7 @@
     enabled_plugins: "/etc/amonagent/plugins-enabled"
     name: "apache"
     status_url: "http://127.0.0.1/server-status?auto"
+    goaccess_list_file: "/etc/apt/sources.list.d/goaccess.list"
   tasks:
   - 
     name: Apache | Enable mod_status
@@ -14,12 +15,31 @@
   - 
     name: Copy the plugin configuration file 
     template: src={{ plugins_path }}/{{ name }}.conf.example dest={{ enabled_plugins }}/{{ name }}.conf
+
+  - 
+    apt_key: url=http://deb.goaccess.io/gnugpg.key state=present
+    when: ansible_os_family == "Debian"
+  - 
+    name: Create Goaccess list file
+    lineinfile: dest={{goaccess_list_file}} regexp='^' line='' state=present create=True
+    when: ansible_os_family == "Debian"
+  - 
+    name: Add Goaccess Repository.
+    lineinfile: "dest={{goaccess_list_file}} line='deb http://deb.goaccess.io {{ ansible_distribution_release }}  main'"
+    when: ansible_os_family == "Debian"
+  - 
+    apt: name=goaccess state=latest update_cache=yes
+    when: ansible_os_family == "Debian"
   - 
     template: src={{ plugins_path }}/status_template dest=/etc/apache2/mods-enabled/status.conf
     when: ansible_os_family == "Debian"
   -
     service: name=apache2 state=restarted
     when: ansible_os_family == "Debian"
+  
+  - 
+    yum: name=goaccess state=latest
+    when: ansible_os_family == "RedHat"
   - 
     template: src={{ plugins_path }}/status_template dest=/etc/httpd/conf.d/status.conf
     when: ansible_os_family == "RedHat"

@@ -11,7 +11,7 @@ RUN echo 'deb http://packages.amon.cx/repo amon contrib' >> /etc/apt/sources.lis
 RUN apt-get update
 
 
-RUN apt-get install software-properties-common
+RUN apt-get install software-properties-common -y --force-yes
 RUN apt-add-repository ppa:ansible/ansible
 RUN apt-get update
 RUN apt-get install ansible -y --force-yes
