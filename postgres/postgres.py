@@ -9,7 +9,7 @@ from amonagent.modules.plugins import AmonPlugin
 class PostgresPlugin(AmonPlugin):
 
 
-	VERSION = '1.0'
+	VERSION = '1.1'
 
 	GAUGES = {
 		'numbackends': 'connections'
@@ -220,72 +220,43 @@ class PostgresPlugin(AmonPlugin):
 		if db_size: 
 			self.gauge('dbsize', db_size)
 
-		# SLOW QUERIES -- BEGIN 
-		query = self.SLOW_QUERIES % 10
-		self.log.debug("Running query: %s" % query)
-		
-
-		try:
-			cursor.execute(query)
-			slow_queries_cursor = cursor.fetchall()
-		except:
-			slow_queries_cursor = False # Can't  fetch
-
-		
-		if slow_queries_cursor:
-			slow_queries_result = {
-				'headers': self.SLOW_QUERIES_ROWS, 
-				'data': []
+		additional_checks = {
+			'slow_queries': 
+			{
+				'query': self.SLOW_QUERIES,
+				'headers': self.SLOW_QUERIES_ROWS
+			}, 
+			'tables_size': {
+				'query': self.TABLES_SIZE_QUERY,
+				'headers': self.TABLES_SIZE_ROWS
+			},
+			'index_hit_rate': {
+				'query': self.INDEX_CACHE_HIT_RATE,
+				'headers': self.INDEX_CACHE_HIT_RATE_ROWS
 			}
-			for r in slow_queries_cursor:
-				normalized_row = map(self.normalize_row_value, r)
-				slow_queries_result['data'].append(normalized_row)
-				
-			self.result['slow_queries'] = slow_queries_result
-		
-		# SLOW QUERIES -- END	
 
+		}
 
-		# TABLES SIZE -- BEGIN
-		try:
-			cursor.execute(self.TABLES_SIZE_QUERY)
-			tables_sizes_cursor = cursor.fetchall()
-		except:
-			tables_sizes_cursor = False # Can't  fetch
+		for check, values in additional_checks.items():
+			query = values.get('query')
+			headers = values.get('headers')
 
-		if tables_sizes_cursor:
-			tables_sizes_result = {
-				'headers': self.TABLES_SIZE_ROWS, 
-				'data': []
-			}
-			for r in tables_sizes_cursor:
-				normalized_row = map(self.normalize_row_value, r)
-				tables_sizes_result['data'].append(normalized_row)
-				
-			self.result['tables_size'] = tables_sizes_result
-		# TABLES SIZE -- END
+			try:
+				cursor.execute(query)
+				result_cursor = cursor.fetchall()
+			except:
+				result_cursor = False # Can't  fetch
 
-
-		# INDEX HIT RATE -- BEGIN
-		try:
-			cursor.execute(self.INDEX_CACHE_HIT_RATE)
-			indx_cursor = cursor.fetchall()
-		except:
-			indx_cursor = False # Can't  fetch
-
-		if indx_cursor:
-			indx_result = {
-				'headers': self.INDEX_CACHE_HIT_RATE_ROWS, 
-				'data': []
-			}
-			for r in indx_cursor:
-				normalized_row = map(self.normalize_row_value, r)
-				indx_result['data'].append(normalized_row)
-				
-			self.result['index_hit_rate'] = indx_result
-		# INDEX HIT RATE -- END
-
-
+			if result_cursor:
+				result_dict = {
+					'headers': headers, 
+					'data': []
+				}
+				for r in result_cursor:
+					normalized_row = map(self.normalize_row_value, r)
+					result_dict['data'].append(normalized_row)
+					
+				self.result[check] = result_dict
 
 		if result:
 			self.version(psycopg2=psycopg2.__version__,

@@ -69,6 +69,22 @@ LIMIT 30
 				'query', 'start_time']
 
 
+	TABLES_SIZE = """
+		SELECT table_name as 'table',
+			 table_schema as 'database',
+			 table_rows as rows,
+			 data_length as size,
+			 index_length as indexes,
+		CONCAT(ROUND(data_length + index_length )) total,
+		ROUND(index_length / data_length, 2) as index_fraction
+		FROM   information_schema.TABLES
+		WHERE table_schema NOT IN ('information_schema', 'performance_schema', 'mysql')
+		ORDER  BY data_length + index_length DESC;
+"""
+
+	TABLES_SIZE_ROWS = ['table', 'database', 'rows','size', 'indexes', 'total', 'index_fraction']
+
+
 	def _connect(self):
 		host = self.config.get('host', 'localhost')
 		port = self.config.get('port', 3306)
@@ -115,29 +131,40 @@ LIMIT 30
 			plugin=self.VERSION,
 			mysqldb=MySQLdb.__version__)
 
-
-		cursor.execute(self.SLOW_QUERIES)
-
-		try:
-			cursor.execute(self.SLOW_QUERIES)
-			slow_queries_cursor = cursor.fetchall()
-		except:
-			slow_queries_cursor = False # Can't  fetch
-
-		if slow_queries_cursor:
-			slow_queries_result = {
-				'headers': self.SLOW_QUERIES_ROWS, 
-				'data': []
+		additional_checks = {
+			'slow_queries': 
+			{
+				'query': self.SLOW_QUERIES,
+				'headers': self.SLOW_QUERIES_ROWS
+			}, 
+			'tables_size': {
+				'query': self.TABLES_SIZE,
+				'headers': self.TABLES_SIZE_ROWS
 			}
-			for r in slow_queries_cursor:
-				normalized_row = map(self.normalize_row_value, r)
-				slow_queries_result['data'].append(normalized_row)
-				
-			self.slow_queries(result=slow_queries_result)
-		
-		# SLOW QUERIES -- END	
-		
 
+		}
+
+		for check, values in additional_checks.items():
+			query = values.get('query')
+			headers = values.get('headers')
+
+			try:
+				cursor.execute(query)
+				result_cursor = cursor.fetchall()
+			except:
+				result_cursor = False # Can't  fetch
+
+			if result_cursor:
+				result_dict = {
+					'headers': headers, 
+					'data': []
+				}
+				for r in result_cursor:
+					normalized_row = map(self.normalize_row_value, r)
+					result_dict['data'].append(normalized_row)
+					
+				self.result[check] = result_dict
+		
 		cursor.close()
 		self.connection.close()
 		del cursor
