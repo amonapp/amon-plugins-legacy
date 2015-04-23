@@ -73,16 +73,17 @@ LIMIT 30
 		SELECT table_name as 'table',
 			 table_schema as 'database',
 			 table_rows as rows,
+			 CONCAT(table_schema, '.', table_name) as full_name,
 			 data_length as size,
 			 index_length as indexes,
-		CONCAT(ROUND(data_length + index_length )) total,
+			(data_length + index_length) as total,
 		ROUND(index_length / data_length, 2) as index_fraction
 		FROM   information_schema.TABLES
 		WHERE table_schema NOT IN ('information_schema', 'performance_schema', 'mysql')
 		ORDER  BY data_length + index_length DESC;
 """
 
-	TABLES_SIZE_ROWS = ['table', 'database', 'rows','size', 'indexes', 'total', 'index_fraction']
+	TABLES_SIZE_ROWS = ['table', 'database', 'rows', 'full_name', 'size', 'indexes', 'total', 'index_fraction']
 
 
 	def _connect(self):

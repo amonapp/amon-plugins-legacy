@@ -1,3 +1,8 @@
+1.0.3
+=======
+
+* Detailed request data through goaccess
+
 1.0.2
 =======
 

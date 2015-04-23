@@ -9,7 +9,7 @@ from amonagent.modules.plugins import AmonPlugin
 
 class NginxPlugin(AmonPlugin):
 
-	VERSION = '1.0.2'
+	VERSION = '1.0.3'
 
 	"""Tracks basic nginx metrics via the status module
 	* number of connections
