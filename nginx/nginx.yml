@@ -6,7 +6,7 @@
     enabled_plugins: "/etc/amonagent/plugins-enabled"
     name: "nginx"
     status_url: "http://127.0.0.1:2464/nginx_status"
-
+    goaccess_list_file: "/etc/apt/sources.list.d/goaccess.list"
   tasks:
   - name: Check Nginx directory structure
     stat: path=/etc/nginx/sites-enabled
@@ -22,3 +22,22 @@
     when: not nginx_dir.stat.exists
   - 
     service: name=nginx state=restarted
+
+
+  - 
+    apt_key: url=http://deb.goaccess.io/gnugpg.key state=present
+    when: ansible_os_family == "Debian"
+  - 
+    name: Create Goaccess list file
+    lineinfile: dest={{goaccess_list_file}} regexp='^' line='' state=present create=True
+    when: ansible_os_family == "Debian"
+  - 
+    name: Add Goaccess Repository.
+    lineinfile: "dest={{goaccess_list_file}} line='deb http://deb.goaccess.io {{ ansible_distribution_release }}  main'"
+    when: ansible_os_family == "Debian"
+  - 
+    apt: name=goaccess state=latest update_cache=yes
+    when: ansible_os_family == "Debian"
+  - 
+    yum: name=goaccess state=latest
+    when: ansible_os_family == "RedHat"
