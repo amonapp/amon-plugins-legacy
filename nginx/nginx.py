@@ -1,6 +1,9 @@
 import requests
 import re
 import sys
+import subprocess
+import tempfile
+import json
 
 from amonagent.modules.plugins import AmonPlugin
 
@@ -26,13 +29,13 @@ class NginxPlugin(AmonPlugin):
 
 	def collect(self):
 		status_url =  self.config.get('status_url')
+		log_file = self.config.get('log_file')
 
 
 		try:
 			response = requests.get(status_url, timeout=5)
 		except Exception, e:
 			self.error(e)
-			return
 	
 
 		whitelist = ['accepts','handled','requests']
@@ -68,4 +71,58 @@ class NginxPlugin(AmonPlugin):
 					for (key,val) in re.findall('(\w+):\s*(\d+)', line):
 						key = self.normalize(key, prefix='connections')
 						self.gauge(key, int(val))
-						
+
+
+		# Get detailed stats with goaccess
+		 # goaccess -f /var/log/nginx.simplistic.log -o json --log-format='%h %^[%d:%t %^] "%r" %s %b' --date-format="%d/%b/%Y" --time-format="%H:%M:%S"
+		configfile = tempfile.NamedTemporaryFile()
+		log_content = "color_scheme 0"
+		log_content += """
+date_format %d/%b/%Y
+log_format %h %^[%d:%t %^] "%r" %s %b
+time_format  %H:%M:%S
+"""
+		configfile.write(log_content)
+		configfile.flush()
+
+
+		command = ["goaccess", "-f", log_file, "-p", configfile.name, "-o", "json"]
+
+		server = subprocess.Popen(command, stdout=subprocess.PIPE if format else None)
+		out, err = server.communicate()
+
+		try:
+			json_result = json.loads(out)
+		except:
+			json_result = None
+
+		if json_result:
+			general =  json_result.get('general')
+			requests_result = json_result.get('requests')
+			not_found_result = json_result.get('not_found')
+
+			ignored_general_keys = ['date_time', 'log_path']
+			for key, value in general.items():
+				if key not in ignored_general_keys:
+					name = self.normalize(key)
+					self.counter(name, value)
+			
+			loop_over = {'requests': requests_result, 'not_found': not_found_result}
+			for key, data in loop_over.items():
+				if data:
+					result = {'data': []}
+
+				try:
+					headers = data[0].keys()
+				except:
+					headers = None
+
+				if headers:
+					result['headers'] = headers
+
+					for r in data:
+						result['data'].append(r.values())
+
+				self.result[key] = result
+
+		

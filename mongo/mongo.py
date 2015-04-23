@@ -93,6 +93,7 @@ class MongoPlugin(AmonPlugin):
 		username = parsed.get('username')
 		password = parsed.get('password')
 		db_name = parsed.get('database')
+		slowms = self.config.get('slowms', 25)
 
 		if not db_name:
 			self.log.info('No MongoDB database found in URI. Defaulting to admin.')
@@ -196,7 +197,7 @@ class MongoPlugin(AmonPlugin):
 
 
 		# Performance 
-		params = {"millis": { "$gt" : 10 }}
+		params = {"millis": { "$gt" : slowms }}
 		performance = db['system.profile']\
 		.find(params)\
 		.sort("ts", pymongo.DESCENDING)\

@@ -108,13 +108,14 @@ class PostgresPlugin(AmonPlugin):
 
 	TABLES_SIZE_ROWS = ['name','type','size']
 
+	# https://gist.github.com/mattsoldo/3853455
 	INDEX_CACHE_HIT_RATE = """
-			-- Index hit rate
+		-- Index hit rate
 		WITH idx_hit_rate as (
 		SELECT 
 		  relname as table_name, 
 		  n_live_tup,
-		  round(100.0 * idx_scan / (seq_scan + idx_scan),2) as idx_hit_rate
+		  round(100.0 * idx_scan / (seq_scan + idx_scan + 0.000001),2) as idx_hit_rate
 		FROM pg_stat_user_tables
 		ORDER BY n_live_tup DESC
 		),
@@ -124,9 +125,8 @@ class PostgresPlugin(AmonPlugin):
 		SELECT
 		 relname as table_name,
 		 heap_blks_read + heap_blks_hit as reads,
-		 round(100.0 * sum (heap_blks_read + heap_blks_hit) over (ORDER BY heap_blks_read + heap_blks_hit DESC) / 
-		 	sum(heap_blks_read + heap_blks_hit) over (),4) as cumulative_pct_reads,
-		 round(100.0 * heap_blks_hit / (heap_blks_hit + heap_blks_read),2) as cache_hit_rate
+		 round(100.0 * sum (heap_blks_read + heap_blks_hit) over (ORDER BY heap_blks_read + heap_blks_hit DESC) / sum(heap_blks_read + heap_blks_hit + 0.000001) over (),4) as cumulative_pct_reads,
+		 round(100.0 * heap_blks_hit / (heap_blks_hit + heap_blks_read + 0.000001),2) as cache_hit_rate
 		FROM  pg_statio_user_tables
 		WHERE heap_blks_hit + heap_blks_read > 0
 		ORDER BY 2 DESC
@@ -136,15 +136,16 @@ class PostgresPlugin(AmonPlugin):
 		  idx_hit_rate.table_name,
 		  idx_hit_rate.n_live_tup as size,
 		  cache_hit_rate.reads,
-		cache_hit_rate.cumulative_pct_reads,
-
-		  idx_hit_rate.idx_hit_rate as index_hit_rate,
+		  cache_hit_rate.cumulative_pct_reads,
+		  idx_hit_rate.idx_hit_rate,
 		  cache_hit_rate.cache_hit_rate
 		FROM idx_hit_rate, cache_hit_rate
 		WHERE idx_hit_rate.table_name = cache_hit_rate.table_name
 		  AND cumulative_pct_reads < 100.0
 		ORDER BY reads DESC;
 """
+
+	INDEX_CACHE_HIT_RATE_ROWS = ['table_name','size','reads', 'cumulative_pct_reads', 'index_hit_rate', 'cache_hit_rate']
 
 	def _get_connection(self):
 		
@@ -246,7 +247,6 @@ class PostgresPlugin(AmonPlugin):
 
 
 		# TABLES SIZE -- BEGIN
-
 		try:
 			cursor.execute(self.TABLES_SIZE_QUERY)
 			tables_sizes_cursor = cursor.fetchall()
@@ -264,6 +264,28 @@ class PostgresPlugin(AmonPlugin):
 				
 			self.result['tables_size'] = tables_sizes_result
 		# TABLES SIZE -- END
+
+
+		# INDEX HIT RATE -- BEGIN
+		try:
+			cursor.execute(self.INDEX_CACHE_HIT_RATE)
+			indx_cursor = cursor.fetchall()
+		except:
+			indx_cursor = False # Can't  fetch
+
+		if indx_cursor:
+			indx_result = {
+				'headers': self.INDEX_CACHE_HIT_RATE_ROWS, 
+				'data': []
+			}
+			for r in indx_cursor:
+				normalized_row = map(self.normalize_row_value, r)
+				indx_result['data'].append(normalized_row)
+				
+			self.result['index_hit_rate'] = indx_result
+		# INDEX HIT RATE -- END
+
+
 
 		if result:
 			self.version(psycopg2=psycopg2.__version__,
