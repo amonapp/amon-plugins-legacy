@@ -77,7 +77,7 @@ class NginxPlugin(AmonPlugin):
 		configfile = tempfile.NamedTemporaryFile()
 		log_content = """
 date_format %d/%b/%Y
-log_format %h %^[%d:%t %^] "%r" %s %b
+log_format  %h %^[%d:%t %^] "%r" %s %b "%R" "%u"
 time_format  %H:%M:%S
 """
 		configfile.write(log_content)
