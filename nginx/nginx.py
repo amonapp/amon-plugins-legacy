@@ -29,7 +29,7 @@ class NginxPlugin(AmonPlugin):
 
 	def collect(self):
 		status_url =  self.config.get('status_url')
-		log_file = self.config.get('log_file')
+		log_file = self.config.get('log_file', "")
 
 
 		try:

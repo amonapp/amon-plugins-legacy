@@ -14,6 +14,6 @@ RUN apt-get update
 RUN apt-get install software-properties-common -y --force-yes
 RUN apt-add-repository ppa:ansible/ansible
 RUN apt-get update
-RUN apt-get install ansible -y --force-yes
+RUN apt-get install ansible mysql-server apache2 nginx postgresql mongodb-server -y --force-yes
 
 CMD ["/bin/bash"]

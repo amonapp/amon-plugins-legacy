@@ -28,7 +28,7 @@ class ApachePlugin(AmonPlugin):
 
 	def collect(self):
 		status_url = self.config.get('status_url')
-		log_file = self.config.get('log_file')
+		log_file = self.config.get('log_file', "")
 		response = None
 
 
@@ -81,10 +81,9 @@ time_format  %H:%M:%S
 
 		command = ["goaccess", "-f", log_file, "-p", configfile.name, "-o", "json"]
 
+		print command
 		server_data = subprocess.Popen(command, stdout=subprocess.PIPE if format else None)
 		out, err = server_data.communicate()
-
-		print out
 
 		try:
 			json_result = json.loads(out)
