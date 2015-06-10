@@ -41,21 +41,25 @@ class PostgresPlugin(AmonPlugin):
 
 		
 	SLOW_QUERIES = """
-		SELECT
-		calls,
-		round(total_time :: NUMERIC, 1) AS total,
-		round(
-			(total_time / calls) :: NUMERIC,
-			3
-		) AS per_call,
-		regexp_replace(query, '[ \t\n]+', ' ', 'g') AS query
-	FROM
-		pg_stat_statements
-	WHERE
-		calls > % s
-	ORDER BY
-		total_time / calls DESC
-	LIMIT 15;
+		SELECT * FROM
+		(SELECT
+				calls,
+				round(total_time :: NUMERIC, 1) AS total,
+				round(
+					(total_time / calls) :: NUMERIC,
+					3
+				) AS per_call,
+				regexp_replace(query, '[ \t\n]+', ' ', 'g') AS query
+		FROM
+				pg_stat_statements
+		WHERE
+		calls > 100
+		ORDER BY
+				total_time / calls DESC
+		LIMIT 15
+		) AS inner_table
+		WHERE 
+		  per_call > 5
 """
 
 	SLOW_QUERIES_ROWS = ['calls','total','per_call','query']
@@ -236,6 +240,7 @@ class PostgresPlugin(AmonPlugin):
 			}
 
 		}
+
 
 		for check, values in additional_checks.items():
 			query = values.get('query')
