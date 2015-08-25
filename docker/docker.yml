@@ -1,0 +1,12 @@
+- hosts: localhost
+  connection: local
+  sudo: True
+  vars:
+    plugins_path: "/etc/amonagent/plugins/"
+    enabled_plugins: "/etc/amonagent/plugins-enabled/"
+  tasks:
+  - 
+    template: src={{ plugins_path }}docker/docker.conf.example dest={{ enabled_plugins }}docker.conf
+  - 
+    name: Install Plugin requirements
+    pip: requirements={{ plugins_path }}docker/requirements.txt
